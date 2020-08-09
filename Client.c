@@ -13,14 +13,18 @@ void func(int sockfd)
     int n;
     for (;;) {
         bzero(buff, sizeof(buff));
-        printf("Enter the string : ");
+        printf("Question : ");
         n = 0;
         while ((buff[n++] = getchar()) != '\n')
             ;
         send(sockfd, buff, sizeof(buff),0);
+        // si msg contient "FIN" ou "FINFIN3, alors le client se deconnecte
+        if ((strncmp("FINFIN", buff, sizeof("FINFIN")) == 0)|| (strncmp("FIN", buff, 3) == 0)) {
+            break;
+        }
         bzero(buff, sizeof(buff));
         recv(sockfd, buff, sizeof(buff),0);
-        printf("From Server : %s", buff);
+        printf("From Server : %s\n", buff);
         if ((strncmp(buff, "exit", 4)) == 0) {
             printf("Client Exit...\n");
             break;
