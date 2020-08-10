@@ -16,7 +16,7 @@
  * particulier et les retourner dans un tableau */
 char** split (char string[])
 {
-    char ** array = (char**)malloc(4 * sizeof(char*));
+    char ** array = (char**)malloc(5 * sizeof(char*));
     for (int j =0 ; j < 10; ++j) {
         array[j] = (char *) malloc(10 * sizeof(char));
         array[j] = NULL;
@@ -36,8 +36,8 @@ char* handleRequest(char** request){
     char* response = (char*) malloc(100 * sizeof(char));
 
     // Calcul de surface
-    if(strcmp(request[2],"Su*") == 0) {
-            // Cas d'un carre
+    if((request[2] != NULL) && (strcmp(request[2],"Su*") == 0)) {
+        // Cas d'un carre
         if (strncmp(request[3], "C*",2) == 0) {
             if(strcmp(request[0],request[1]) == 0) // Un carre doit avoir des cotes egaux
                 sprintf(response,"La surface du carre est %d",atoi(request[0]) * atoi(request[1]));
@@ -66,8 +66,8 @@ char* handleRequest(char** request){
 
     }
         // Calcul de perimetre
-    else if(strcmp(request[2],"Pr") == 0){
-            // Cas d'un Carre
+    else if((request[2] != NULL) && (strcmp(request[2],"Pr") == 0)){
+        // Cas d'un Carre
         if (strncmp(request[3], "C*",2) == 0) {
             if(strcmp(request[0],request[1]) == 0) // Un carre doit avoir des cotes egaux
                 sprintf(response,"Le perimetre du carre est %d",(atoi(request[0]) * 4));
@@ -94,7 +94,6 @@ char* handleRequest(char** request){
     else{
         sprintf(response,"Erreur ! Format invalide");
     }
-
     return (char*)response;
 }
 
@@ -116,6 +115,9 @@ FILE* open_archive_file(){
 void show_score(){
     // Ouvrez le fichier en mode lecture r (read).
     FILE *archive;
+    char * line = NULL;
+    size_t len = 0;
+    ssize_t read;
     archive = fopen("archive_clients.txt", "r");
 
     if (archive == NULL) {
@@ -125,11 +127,21 @@ void show_score(){
         exit(EXIT_FAILURE);
     }
 
+    int score[] = {0,0,0};
+    while ((read = getline(&line, &len, archive)) != -1) {
+        char** array = split(line);
+        score[atoi(array[0] - 1)]++;
+    }
+    printf("****** SCORE FINALE ******\n");
+    for(int i=0;i<3;i++){
+        printf("Client %d  :  %d questions\n",i+1,score[i]);
+    }
+    printf("**************************\n");
 }
 
 
 // Fonction conçue pour le chat entre le client et le serveur.
-int run(int tube_client)
+int run(int tube_client, int id_client)
 {
     char buff[MAX];
     int n;
@@ -144,8 +156,8 @@ int run(int tube_client)
 
         // si msg contient «FINFIN», alors le serveur quitte et le chat est terminé.
         if (strncmp("FINFIN", buff, 6) == 0) {
-            printf("Merci d'utiliser mon service!...\n");
             show_score();
+            printf("Merci d'utiliser mon service!...\n");
             return 0;
         }
 
@@ -155,19 +167,30 @@ int run(int tube_client)
             break;
         }
 
-        // Ouvrir le fichier de l'archive
-        FILE* archive = open_archive_file();
-        // archiver la requete dans le fichier d'archive
-        fputs(buff, archive);
-        // Fermer le fichier pour enregistrer les données
-        fclose(archive);
 
         // Manipulation du question et preparation du résultat
+        char aux[MAX];
+        strcpy(aux,buff);
         char **array = split(buff) ;
         char* response = handleRequest(array);
+        if(strncmp(response,"Erreur ! Format invalide",24) != 0){ // Si la question est correcte ! la enregistrer
+            // Ouvrir le fichier de l'archive
+            FILE* archive = open_archive_file();
+            // archiver la requete dans le fichier d'archive
+            char question[30];
+            sprintf(question,"%d,%s",id_client,aux);
+            //printf("%s * %s  * %d",question,buff,id_client);
+            fputs(question, archive);
+            bzero(question,sizeof(question));
+            // Fermer le fichier pour enregistrer les données
+            fclose(archive);
+            // Envoyer la reponse au client
+            send(tube_client, response, sizeof(buff),0);
+        }
+        else{
+            send(tube_client, "Erreur ! Format invalide !", sizeof(buff),0);
+        }
 
-        // Envoyer la reponse au client
-        send(tube_client, response, sizeof(buff),0);
     }
 
     return 1;
@@ -217,7 +240,7 @@ int main()
         printf("Tube serveur liee a l'adresse IP avec succes !..\n");
 
     // Le serveur est maintenant prêt à écouter et à vérifier
-    if ((listen(tube_serveur, 5)) != 0) {
+    if ((listen(tube_serveur, 3)) != 0) {
         printf("Le serveur ne parvient pas à écouter les requetes ! Le serveur s'arrete...\n");
         system("pause");
         exit(EXIT_FAILURE);
@@ -227,6 +250,7 @@ int main()
 
     l = sizeof(adresseClient);
 
+    static int ID_CLIENT = 0;
     int running = 1;
     while(running) {
         // Accepter le paquet de données du client et vérification
@@ -234,11 +258,13 @@ int main()
         if (tube_client < 0) {
             printf("Erreur ! Le serveur ne parvient pas à accepter le client !...\n");
             exit(EXIT_FAILURE);
-        } else
+        } else {
             printf("Un client vient de se connecter ...\n");
+            ID_CLIENT++;
+        }
 
         // Fonction de discussion entre client et serveur
-        running = run(tube_client);
+        running = run(tube_client,ID_CLIENT);
     }
 
     // Après avoir discuté, fermer la tube serveur

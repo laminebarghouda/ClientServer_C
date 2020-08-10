@@ -1,0 +1,66 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+../Thread API/include/pthread.h
+windows.h
+-
+config.h
+../Thread API/include/config.h
+time.h
+-
+signal.h
+-
+limits.h
+-
+need_errno.h
+../Thread API/include/need_errno.h
+errno.h
+-
+sched.h
+-
+sys/types.h
+-
+
+../Thread API/include/sched.h
+need_errno.h
+../Thread API/include/need_errno.h
+errno.h
+-
+sys/types.h
+-
+time.h
+-
+
+C:/Users/lamin/CLionProjects/TP2/Client.c
+stdio.h
+-
+stdlib.h
+-
+string.h
+-
+winsock2.h
+-
+unistd.h
+-
+
+C:/Users/lamin/CLionProjects/TP2/Serveur.c
+stdio.h
+-
+unistd.h
+-
+stdlib.h
+-
+string.h
+-
+winsock2.h
+-
+windows.h
+-
+pthread.h
+-
+

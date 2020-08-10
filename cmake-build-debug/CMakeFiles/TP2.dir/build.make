@@ -57,6 +57,7 @@ include CMakeFiles/TP2.dir/progress.make
 include CMakeFiles/TP2.dir/flags.make
 
 CMakeFiles/TP2.dir/Serveur.c.obj: CMakeFiles/TP2.dir/flags.make
+CMakeFiles/TP2.dir/Serveur.c.obj: CMakeFiles/TP2.dir/includes_C.rsp
 CMakeFiles/TP2.dir/Serveur.c.obj: ../Serveur.c
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\Users\lamin\CLionProjects\TP2\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building C object CMakeFiles/TP2.dir/Serveur.c.obj"
 	C:\MinGW\bin\gcc.exe $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles\TP2.dir\Serveur.c.obj   -c C:\Users\lamin\CLionProjects\TP2\Serveur.c
@@ -70,6 +71,7 @@ CMakeFiles/TP2.dir/Serveur.c.s: cmake_force
 	C:\MinGW\bin\gcc.exe $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S C:\Users\lamin\CLionProjects\TP2\Serveur.c -o CMakeFiles\TP2.dir\Serveur.c.s
 
 CMakeFiles/TP2.dir/Client.c.obj: CMakeFiles/TP2.dir/flags.make
+CMakeFiles/TP2.dir/Client.c.obj: CMakeFiles/TP2.dir/includes_C.rsp
 CMakeFiles/TP2.dir/Client.c.obj: ../Client.c
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\Users\lamin\CLionProjects\TP2\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building C object CMakeFiles/TP2.dir/Client.c.obj"
 	C:\MinGW\bin\gcc.exe $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles\TP2.dir\Client.c.obj   -c C:\Users\lamin\CLionProjects\TP2\Client.c
