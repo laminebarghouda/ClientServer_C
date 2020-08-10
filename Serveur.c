@@ -34,7 +34,6 @@ char** split (char string[])
 // Fonction qui manipule la requete du client
 char* handleRequest(char** request){
     char* response = (char*) malloc(100 * sizeof(char));
-
     // Calcul de surface
     if((request[2] != NULL) && (strcmp(request[2],"Su*") == 0)) {
         // Cas d'un carre
@@ -130,7 +129,7 @@ void show_score(){
     int score[] = {0,0,0};
     while ((read = getline(&line, &len, archive)) != -1) {
         char** array = split(line);
-        score[atoi(array[0] - 1)]++;
+        score[atoi(array[0]) - 1]++;
     }
     printf("****** SCORE FINALE ******\n");
     for(int i=0;i<3;i++){
@@ -167,7 +166,6 @@ int run(int tube_client, int id_client)
             break;
         }
 
-
         // Manipulation du question et preparation du résultat
         char aux[MAX];
         strcpy(aux,buff);
@@ -179,7 +177,6 @@ int run(int tube_client, int id_client)
             // archiver la requete dans le fichier d'archive
             char question[30];
             sprintf(question,"%d,%s",id_client,aux);
-            //printf("%s * %s  * %d",question,buff,id_client);
             fputs(question, archive);
             bzero(question,sizeof(question));
             // Fermer le fichier pour enregistrer les données
@@ -190,7 +187,6 @@ int run(int tube_client, int id_client)
         else{
             send(tube_client, "Erreur ! Format invalide !", sizeof(buff),0);
         }
-
     }
 
     return 1;
@@ -219,6 +215,7 @@ int main()
     tube_serveur = socket(AF_INET, SOCK_STREAM, 0);
     if (tube_serveur == -1) {
         printf("Impossible de creer la tube serveur ! Le serveur s'arrete...\n");
+        system("pause");
         exit(EXIT_FAILURE);
     }
     else
@@ -234,13 +231,14 @@ int main()
     // Liaison du tube serveur nouvellement créé à l'adresse IP donnée et vérification
     if ((bind(tube_serveur, (SA*)&adresseServeur, sizeof(adresseServeur))) != 0) {
         printf("La tube serveur ne parvient pas à se lier à l'adresse IP...\n");
+        system("pause");
         exit(EXIT_FAILURE);
     }
     else
         printf("Tube serveur liee a l'adresse IP avec succes !..\n");
 
     // Le serveur est maintenant prêt à écouter et à vérifier
-    if ((listen(tube_serveur, 3)) != 0) {
+    if ((listen(tube_serveur, 10)) != 0) {
         printf("Le serveur ne parvient pas à écouter les requetes ! Le serveur s'arrete...\n");
         system("pause");
         exit(EXIT_FAILURE);

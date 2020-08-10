@@ -25,10 +25,6 @@ void func(int sockfd)
         bzero(buff, sizeof(buff));
         recv(sockfd, buff, sizeof(buff),0);
         printf("From Server : %s\n", buff);
-        if ((strncmp(buff, "exit", 4)) == 0) {
-            printf("Client Exit...\n");
-            break;
-        }
     }
 }
 
