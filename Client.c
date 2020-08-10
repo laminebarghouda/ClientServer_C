@@ -7,7 +7,7 @@
 #define PORT 5000
 #define SA struct sockaddr
 #define bzero(b,len) (memset((b), '\0', (len)), (void) 0)
-void func(int sockfd)
+void func(int tube_client)
 {
     char buff[MAX];
     int n;
@@ -17,13 +17,17 @@ void func(int sockfd)
         n = 0;
         while ((buff[n++] = getchar()) != '\n')
             ;
-        send(sockfd, buff, sizeof(buff),0);
+        send(tube_client, buff, sizeof(buff),0);
         // si msg contient "FIN" ou "FINFIN3, alors le client se deconnecte
         if ((strncmp("FINFIN", buff, sizeof("FINFIN")) == 0)|| (strncmp("FIN", buff, 3) == 0)) {
             break;
         }
         bzero(buff, sizeof(buff));
-        recv(sockfd, buff, sizeof(buff),0);
+        recv(tube_client, buff, sizeof(buff),0);
+        if(strcmp(buff,"") == 0) {
+            printf("Serveur non disponible ! ");
+            exit(0);
+        }
         printf("From Server : %s\n", buff);
     }
 }
@@ -31,43 +35,46 @@ void func(int sockfd)
 int main()
 {
 
-    // Initialze winsock
+    // Initialisation de la tube
     WSADATA wsData;
     WORD ver = MAKEWORD(2, 2);
 
     int wsOk = WSAStartup(ver, &wsData);
     if (wsOk != 0){
-        printf("Can't Initialize winsock! Quitting");
+        printf("Impossible d'initialiser la tube client ! Le client va quitter ...");
+        system("Pause");
+        exit(EXIT_FAILURE);
     }
-    int sockfd, connfd;
-    struct sockaddr_in servaddr, cli;
+    int tube_client;
+    struct sockaddr_in adresseServeur;
 
-    // socket create and varification
-    sockfd = socket(AF_INET, SOCK_STREAM, 0);
-    if (sockfd == -1) {
-        printf("socket creation failed...\n");
+    // Creation de la tube Serveur
+    tube_client = socket(AF_INET, SOCK_STREAM, 0);
+    if (tube_client == -1) {
+        printf("Impossible de creer la tube serveur ! Le client va quitter...\n");
+        system("pause");
+        exit(EXIT_FAILURE);
+    }
+    else
+        printf("Tube serveur cree avec succes ! ..\n");
+    bzero(&adresseServeur, sizeof(adresseServeur));
+
+    // attribuer IP, PORT
+    adresseServeur.sin_family = AF_INET;
+    adresseServeur.sin_addr.s_addr = inet_addr("127.0.0.1");
+    adresseServeur.sin_port = htons(PORT);
+
+    // connecter le socket client au socket serveur
+    if (connect(tube_client, (SA*)&adresseServeur, sizeof(adresseServeur)) != 0) {
+        printf("La connection avec le serveur a echoue ! Le client va quitter...\n");
         exit(0);
     }
     else
-        printf("Socket successfully created..\n");
-    bzero(&servaddr, sizeof(servaddr));
+        printf("Connection avec le serveur etablit avec succes..\n");
 
-    // assign IP, PORT
-    servaddr.sin_family = AF_INET;
-    servaddr.sin_addr.s_addr = inet_addr("127.0.0.1");
-    servaddr.sin_port = htons(PORT);
+    // fonction pour le chat
+    func(tube_client);
 
-    // connect the client socket to server socket
-    if (connect(sockfd, (SA*)&servaddr, sizeof(servaddr)) != 0) {
-        printf("connection with the server failed...\n");
-        exit(0);
-    }
-    else
-        printf("connected to the server..\n");
-
-    // function for chat
-    func(sockfd);
-
-    // close the socket
-    close(sockfd);
+    // ferme la tube
+    close(tube_client);
 }
