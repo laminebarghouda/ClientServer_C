@@ -2,8 +2,13 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
-#include <winsock2.h>
-#include <windows.h>
+#include <windows.h> // Pour windows
+/* Pour Linux
+ * #include <netdb.h>
+ * #include <netinet/in.h>
+ * #include <sys/socket.h>
+ * #include <sys/types.h>
+ * */
 #define MAX 1000
 #define PORT 5000
 #define SA struct sockaddr
@@ -104,7 +109,7 @@ FILE* open_archive_file(){
 
     if (archive == NULL) {
         // Fichier non créé donc quitter
-        printf("Unable to create file.\n");
+        printf("Impossible de créer le fichier archive_clients.txt.\n");
         system("pause");
         exit(EXIT_FAILURE);
     }
@@ -120,8 +125,8 @@ void show_score(){
     archive = fopen("archive_clients.txt", "r");
 
     if (archive == NULL) {
-        /* File not opened hence exit */
-        printf("Unable to open file.\n");
+        // Fichier pas ouvert donc quitter
+        printf("Impossible d'ouvrir le fichier archive_clients.txt.\n");
         system("pause");
         exit(EXIT_FAILURE);
     }
@@ -196,16 +201,17 @@ int run(int tube_client, int id_client)
 
 int main()
 {
-    // Initialisation de la tube
+    // Initialisation de la tube (Pour windows)
     WSADATA wsData;
     WORD ver = MAKEWORD(2, 2);
-
     int wsOk = WSAStartup(ver, &wsData);
     if (wsOk != 0){
         printf("Impossible d'initialiser la tube serveur ! Le serveur s'arrete ...");
         system("Pause");
         exit(EXIT_FAILURE);
     }
+
+
 
     // Initialisation des variables
     struct sockaddr_in adresseServeur, adresseClient;
